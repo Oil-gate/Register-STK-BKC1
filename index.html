@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 600; }
+        .tab-inactive { color: #6b7280; font-weight: 400; hover:text-gray-900; }
+        /* ซ่อนส่วนที่ไม่ได้ใช้งาน */
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-blue-600 p-6 text-center">
+            <h1 class="text-2xl font-bold text-white">App Portal</h1>
+            <p class="text-blue-100 text-sm mt-1">ยินดีต้อนรับเข้าสู่ระบบ</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200">
+            <button onclick="switchTab('user')" id="tab-user" class="flex-1 py-3 text-center tab-active transition-colors duration-200">
+                ผู้ใช้งาน (User)
+            </button>
+            <button onclick="switchTab('supplier')" id="tab-supplier" class="flex-1 py-3 text-center tab-inactive transition-colors duration-200">
+                ซัพพลายเออร์ (Supplier)
+            </button>
+        </div>
+
+        <!-- User Section -->
+        <div id="section-user" class="p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">ลงทะเบียนเข้าใช้งาน</h2>
+            <form id="userForm" onsubmit="handleUserSubmit(event)">
+                <div class="mb-4">
+                    <label for="company" class="block text-sm font-medium text-gray-700 mb-1">ตัวย่อบริษัท</label>
+                    <input type="text" id="company" required placeholder="เช่น ABC" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+                <div class="mb-6">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Gmail)</label>
+                    <input type="email" id="email" required placeholder="your.email@gmail.com" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+                <button type="submit" id="btn-submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors duration-200">
+                    ยืนยันข้อมูล
+                </button>
+            </form>
+        </div>
+
+        <!-- Supplier Section -->
+        <div id="section-supplier" class="p-6 hidden-section">
+            <div id="supplier-auth">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">ตรวจสอบสิทธิ์</h2>
+                <p class="text-sm text-gray-500 mb-4">กรุณากรอก Company Code ของบริษัทท่านเพื่อเข้าถึงทรัพยากร</p>
+                <div class="flex gap-2">
+                    <input type="text" id="supplier-pass" placeholder="เช่น ABC" 
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <button onclick="verifySupplier()" id="btn-verify"
+                            class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition-colors">
+                        ตรวจสอบ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content for Authorized Suppliers -->
+            <div id="supplier-content" class="hidden-section mt-2">
+                <div class="bg-green-50 border border-green-200 text-green-700 p-3 rounded-lg mb-4 text-sm">
+                    ✓ ยืนยันสิทธิ์สำเร็จ
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">ดาวน์โหลดแอปพลิเคชัน</h2>
+                
+                <div class="space-y-3">
+                    <button type="button" onclick="window.open('https://play.google.com/store/apps/details?id=com.komatsu.stk_bkc_app', '_blank')" class="w-full cursor-pointer flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group bg-white appearance-none text-left">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-blue-100 p-2 rounded-full group-hover:bg-blue-200">
+                                📦
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900">ติดตั้ง Application</h3>
+                                <p class="text-xs text-gray-500">สำหรับระบบปฏิบัติการล่าสุด</p>
+                            </div>
+                        </div>
+                        <span class="text-blue-600 font-medium text-sm">ดาวน์โหลด &rarr;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Message Box (Toast) -->
+    <div id="toast" class="fixed top-5 right-5 transform translate-x-full opacity-0 transition-all duration-300 z-50">
+        <div id="toast-bg" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+            <span id="toast-icon">✓</span>
+            <span id="toast-message" class="font-medium">Message</span>
+        </div>
+    </div>
+
+    <script>
+        // ระบบจัดการ Tab
+        function switchTab(tab) {
+            const userSec = document.getElementById('section-user');
+            const supSec = document.getElementById('section-supplier');
+            const userTab = document.getElementById('tab-user');
+            const supTab = document.getElementById('tab-supplier');
+
+            if (tab === 'user') {
+                userSec.classList.remove('hidden-section');
+                supSec.classList.add('hidden-section');
+                userTab.className = 'flex-1 py-3 text-center tab-active transition-colors duration-200';
+                supTab.className = 'flex-1 py-3 text-center tab-inactive transition-colors duration-200';
+            } else {
+                userSec.classList.add('hidden-section');
+                supSec.classList.remove('hidden-section');
+                supTab.className = 'flex-1 py-3 text-center tab-active transition-colors duration-200';
+                userTab.className = 'flex-1 py-3 text-center tab-inactive transition-colors duration-200';
+            }
+        }
+
+        // ระบบแจ้งเตือน (แทน Alert)
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const toastBg = document.getElementById('toast-bg');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMessage.textContent = message;
+            
+            if (isSuccess) {
+                toastBg.className = 'bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3';
+                toastIcon.textContent = '✓';
+            } else {
+                toastBg.className = 'bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3';
+                toastIcon.textContent = '✕';
+            }
+
+            // แสดง Toast
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            
+            // ซ่อนอัตโนมัติ
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 3000);
+        }
+
+        // ฟังก์ชันส่งข้อมูลของ User
+        function handleUserSubmit(event) {
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
+            
+            const btn = document.getElementById('btn-submit');
+            btn.textContent = "กำลังประมวลผล...";
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            const data = {
+                company: document.getElementById('company').value,
+                email: document.getElementById('email').value
+            };
+
+            // ตรวจสอบว่ากำลังรันใน Apps Script หรือบนระบบ Preview ปกติ
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        resetButton();
+                        if(response.success) {
+                            showToast(response.message, true);
+                            document.getElementById('userForm').reset();
+                        } else {
+                            showToast(response.message, false);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        resetButton();
+                        showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", false);
+                    })
+                    .submitUserData(data);
+            } else {
+                // จำลองการทำงานเมื่อทดสอบในหน้า Preview
+                setTimeout(() => {
+                    resetButton();
+                    showToast("จำลองการบันทึกข้อมูลเรียบร้อย (Preview Mode)", true);
+                    document.getElementById('userForm').reset();
+                }, 1000);
+            }
+
+            function resetButton() {
+                btn.textContent = "ยืนยันข้อมูล";
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        }
+
+        // ฟังก์ชันตรวจสอบซัพพลายเออร์
+        function verifySupplier() {
+            const companyCode = document.getElementById('supplier-pass').value;
+            const btnVerify = document.getElementById('btn-verify');
+            
+            if (!companyCode.trim()) {
+                showToast("กรุณากรอก Company Code", false);
+                return;
+            }
+
+            btnVerify.textContent = "...";
+            btnVerify.disabled = true;
+
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        btnVerify.textContent = "ตรวจสอบ";
+                        btnVerify.disabled = false;
+                        
+                        if(response.success) {
+                            document.getElementById('supplier-auth').classList.add('hidden-section');
+                            document.getElementById('supplier-content').classList.remove('hidden-section');
+                            showToast(response.message || "ยืนยันสิทธิ์สำเร็จ", true);
+                        } else {
+                            showToast(response.message || "Company Code ไม่ถูกต้อง", false);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        btnVerify.textContent = "ตรวจสอบ";
+                        btnVerify.disabled = false;
+                        showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", false);
+                    })
+                    .verifySupplierAuth(companyCode);
+            } else {
+                // ระบบจำลองเมื่อเปิดบนโหมด Preview ของ Editor
+                setTimeout(() => {
+                    btnVerify.textContent = "ตรวจสอบ";
+                    btnVerify.disabled = false;
+                    if(companyCode.toUpperCase() === "ABC") {
+                        document.getElementById('supplier-auth').classList.add('hidden-section');
+                        document.getElementById('supplier-content').classList.remove('hidden-section');
+                        showToast("ยืนยันสิทธิ์สำเร็จ (Preview Mode)", true);
+                    } else {
+                        showToast("ไม่พบ Company Code (รหัสจำลองคือ ABC)", false);
+                    }
+                }, 800);
+            }
+        }
+    </script>
+</body>
+</html>
