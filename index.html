@@ -23,12 +23,12 @@
             <p class="text-blue-100 text-sm mt-1">ยินดีต้อนรับเข้าสู่ระบบ</p>
         </div>
 
-        <!-- Tab Navigation (ซ่อน Supplier ไว้จนกว่า ICT จะอนุมัติหรือตรวจสอบสิทธิ์ผ่าน) -->
+        <!-- Tab Navigation -->
         <div class="flex border-b border-gray-200">
             <button onclick="switchTab('user')" id="tab-user" class="flex-1 py-3 text-center tab-active transition-colors duration-200">
                 ผู้ใช้งาน (User)
             </button>
-            <button onclick="switchTab('supplier')" id="tab-supplier" class="flex-1 py-3 text-center tab-inactive transition-colors duration-200 hidden-section">
+            <button onclick="switchTab('supplier')" id="tab-supplier" class="flex-1 py-3 text-center tab-inactive transition-colors duration-200">
                 ซัพพลายเออร์ (Supplier)
             </button>
         </div>
@@ -39,9 +39,9 @@
             <p class="text-xs text-gray-500 mb-4">กรอกข้อมูลเพื่อส่งให้ ICT ทำการตรวจสอบและเพิ่มสิทธิ์ Gmail ของท่าน</p>
             <form id="userForm" onsubmit="handleUserSubmit(event)">
                 <div class="mb-4">
-                    <label for="company" class="block text-sm font-medium text-gray-700 mb-1">ตัวย่อบริษัท</label>
+                    <label for="company" class="block text-sm font-medium text-gray-700 mb-1">ตัวย่อบริษัท (Company Code)</label>
                     <input type="text" id="company" required placeholder="เช่น ABC" 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase">
                 </div>
                 <div class="mb-6">
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Gmail) ที่ให้ ICT Add</label>
@@ -55,16 +55,15 @@
             </form>
         </div>
 
-        <!-- Supplier Section (ถูกซ่อนไว้จนกว่า ICT จะ Add สิทธิ์และผู้ใช้ตรวจสอบผ่าน) -->
+        <!-- Supplier Section -->
         <div id="section-supplier" class="p-6 hidden-section">
             <div id="supplier-auth">
-                <h2 class="text-lg font-semibold text-gray-800 mb-2">ตรวจสอบสิทธิ์ (ICT Approved)</h2>
-                <p class="text-sm text-gray-500 mb-4">กรอก Company Code ที่ทาง ICT ทำการยืนยันสิทธิ์เรียบร้อยแล้วเพื่อดาวน์โหลดแอป</p>
+                <p class="text-sm text-gray-500 mb-4">กรอก Company Code ที่ได้ลงทะเบียนไว้ในระบบแล้วเท่านั้น เพื่อเข้าสู่หน้าดาวน์โหลดแอป</p>
                 <div class="flex gap-2">
                     <input type="text" id="supplier-pass" placeholder="เช่น ABC" 
-                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase">
                     <button onclick="verifySupplier()" id="btn-verify"
-                            class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition-colors">
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">
                         ตรวจสอบ
                     </button>
                 </div>
@@ -72,24 +71,34 @@
 
             <!-- Content for Authorized Suppliers -->
             <div id="supplier-content" class="hidden-section mt-2">
-                <div class="bg-green-50 border border-green-200 text-green-700 p-3 rounded-lg mb-4 text-sm">
-                    ✓ ยืนยันสิทธิ์จาก ICT สำเร็จ
+                <div class="bg-green-50 border border-green-200 text-green-700 p-3 rounded-lg mb-4 text-sm flex items-center justify-between">
+                    <div>
+                        <span class="font-bold">✓ ยืนยันสิทธิ์สำเร็จ</span>
+                        <p class="text-xs text-green-600 mt-0.5" id="verified-company-badge">บริษัท: --</p>
+                    </div>
+                    <button onclick="logoutSupplier()" class="text-xs text-gray-500 hover:text-red-600 underline">ออก</button>
                 </div>
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">ดาวน์โหลดแอปพลิเคชัน</h2>
+
+                <div class="mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">ดาวน์โหลดแอปพลิเคชัน</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">ติดตั้งแอปพลิเคชันสำหรับอุปกรณ์ Android ของท่าน</p>
+                </div>
                 
                 <div class="space-y-3">
-                    <button type="button" onclick="window.open('https://play.google.com/store/apps/details?id=com.komatsu.stk_bkc_app', '_blank')" class="w-full cursor-pointer flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group bg-white appearance-none text-left">
+                    <!-- Google Play Store -->
+                    <button type="button" onclick="window.open('https://play.google.com/store/apps/details?id=com.komatsu.stk_bkc_app', '_blank')" class="w-full cursor-pointer flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all group bg-white appearance-none text-left shadow-sm">
                         <div class="flex items-center gap-3">
-                            <div class="bg-blue-100 p-2 rounded-full group-hover:bg-blue-200">
-                                📦
+                            <div class="bg-blue-100 p-3 rounded-xl group-hover:bg-blue-200 text-xl">
+                                🤖
                             </div>
                             <div>
-                                <h3 class="font-medium text-gray-900">ติดตั้ง Application</h3>
-                                <p class="text-xs text-gray-500">ผ่าน Google Play Store</p>
+                                <h3 class="font-semibold text-gray-900 text-sm">Google Play Store</h3>
+                                <p class="text-xs text-gray-500">สำหรับอุปกรณ์ Android (เวอร์ชันล่าสุด)</p>
                             </div>
                         </div>
-                        <span class="text-blue-600 font-medium text-sm">ดาวน์โหลด &rarr;</span>
+                        <span class="text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">&rarr;</span>
                     </button>
+                </div>
                 </div>
             </div>
         </div>
@@ -104,10 +113,11 @@
     </div>
 
     <script>
-        // กำหนด URL ของ Google Apps Script ที่ Deploy ไว้
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzyv3BiPHwdhOI3cGRXXfQ2fTZg4LM2FNEQD8_iltu-izMTiQz-ohq7GieNnUHft6hIrQ/exec';
+        
+        // จำลองฐานข้อมูลรายชื่อ Company Code ที่ลงทะเบียนแล้ว (ใช้สำหรับ Preview Mode)
+        let registeredCompanies = JSON.parse(localStorage.getItem('stk_registered_companies')) || ["ABC", "KMT", "STK", "BKC"];
 
-        // ระบบสลับแท็บเมนู
         function switchTab(tab) {
             const userSec = document.getElementById('section-user');
             const supSec = document.getElementById('section-supplier');
@@ -127,7 +137,6 @@
             }
         }
 
-        // ระบบ Toast แจ้งเตือน
         function showToast(message, isSuccess = true) {
             const toast = document.getElementById('toast');
             const toastBg = document.getElementById('toast-bg');
@@ -150,11 +159,13 @@
             }, 3000);
         }
 
-        // ฟังก์ชันส่งข้อมูลผู้ใช้งาน (User) ลงทะเบียนส่งให้ ICT
         function handleUserSubmit(event) {
             event.preventDefault();
             
             const btn = document.getElementById('btn-submit');
+            const companyInput = document.getElementById('company').value.trim().toUpperCase();
+            const emailInput = document.getElementById('email').value.trim();
+
             btn.textContent = "กำลังส่งข้อมูลให้ ICT...";
             btn.disabled = true;
             btn.classList.add('opacity-75', 'cursor-not-allowed');
@@ -162,12 +173,28 @@
             const payload = {
                 action: "submitUser",
                 data: {
-                    company: document.getElementById('company').value,
-                    email: document.getElementById('email').value
+                    company: companyInput,
+                    email: emailInput
                 }
             };
 
-            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'ใส่_URL_WEB_APP_ของคุณที่นี่') {
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        resetButton();
+                        if (response.success) {
+                            showToast(response.message, true);
+                            document.getElementById('userForm').reset();
+                        } else {
+                            showToast(response.message, false);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        resetButton();
+                        showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", false);
+                    })
+                    .submitUserData(payload.data);
+            } else if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'ใส่_URL_WEB_APP_ของคุณที่นี่') {
                 fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -176,7 +203,7 @@
                 })
                 .then(() => {
                     resetButton();
-                    showToast("ส่งข้อมูลเรียบร้อย! กรุณารอ ICT Add Gmail", true);
+                    showToast("ส่งข้อมูลเรียบร้อย! บันทึก Company Code ลงระบบแล้ว", true);
                     document.getElementById('userForm').reset();
                 })
                 .catch(error => {
@@ -184,14 +211,14 @@
                     showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", false);
                 });
             } else {
-                // โหมดทดสอบ (Preview Mode) - สมมติว่า ICT Add ให้แล้ว เลยปลดล็อกแท็บ Supplier ให้กดทดสอบได้ด้วย
                 setTimeout(() => {
                     resetButton();
-                    showToast("บันทึกสำเร็จ! (จำลอง: ปลดล็อก Supplier ให้ทดสอบ)", true);
+                    if (!registeredCompanies.includes(companyInput)) {
+                        registeredCompanies.push(companyInput);
+                        localStorage.setItem('stk_registered_companies', JSON.stringify(registeredCompanies));
+                    }
+                    showToast("ลงทะเบียนสำเร็จ! Company Code [" + companyInput + "] ถูกเพิ่มเข้าระบบแล้ว", true);
                     document.getElementById('userForm').reset();
-                    
-                    // ปลดล็อกแสดงแท็บ Supplier หลังจากลงทะเบียนและ ICT Add แล้ว
-                    document.getElementById('tab-supplier').classList.remove('hidden-section');
                 }, 1000);
             }
 
@@ -202,12 +229,11 @@
             }
         }
 
-        // ฟังก์ชันตรวจสอบสิทธิ์ Supplier หลังจาก ICT Add Gmail แล้ว
         function verifySupplier() {
-            const companyCode = document.getElementById('supplier-pass').value;
+            const companyCode = document.getElementById('supplier-pass').value.trim().toUpperCase();
             const btnVerify = document.getElementById('btn-verify');
             
-            if (!companyCode.trim()) {
+            if (!companyCode) {
                 showToast("กรุณากรอก Company Code", false);
                 return;
             }
@@ -220,7 +246,28 @@
                 companyCode: companyCode
             };
 
-            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'ใส่_URL_WEB_APP_ของคุณที่นี่') {
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function(response) {
+                        btnVerify.textContent = "ตรวจสอบ";
+                        btnVerify.disabled = false;
+                        
+                        if(response.success) {
+                            document.getElementById('supplier-auth').classList.add('hidden-section');
+                            document.getElementById('supplier-content').classList.remove('hidden-section');
+                            document.getElementById('verified-company-badge').textContent = "บริษัท: " + companyCode;
+                            showToast(response.message || "ยืนยันสิทธิ์สำเร็จ", true);
+                        } else {
+                            showToast(response.message || "ไม่พบ Company Code นี้ในระบบ หรือยังไม่ได้รับสิทธิ์จาก ICT", false);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        btnVerify.textContent = "ตรวจสอบ";
+                        btnVerify.disabled = false;
+                        showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", false);
+                    })
+                    .verifySupplierAuth(companyCode);
+            } else if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'ใส่_URL_WEB_APP_ของคุณที่นี่') {
                 fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -234,9 +281,10 @@
                     if(response.success) {
                         document.getElementById('supplier-auth').classList.add('hidden-section');
                         document.getElementById('supplier-content').classList.remove('hidden-section');
+                        document.getElementById('verified-company-badge').textContent = "บริษัท: " + companyCode;
                         showToast(response.message || "ยืนยันสิทธิ์สำเร็จ", true);
                     } else {
-                        showToast(response.message || "ยังไม่ได้รับสิทธิ์จาก ICT หรือ Code ไม่ถูกต้อง", false);
+                        showToast(response.message || "ไม่พบ Company Code นี้ในระบบ หรือยังไม่ได้รับสิทธิ์จาก ICT", false);
                     }
                 })
                 .catch(error => {
@@ -245,19 +293,29 @@
                     showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", false);
                 });
             } else {
-                // โหมดทดสอบ (Preview)
                 setTimeout(() => {
                     btnVerify.textContent = "ตรวจสอบ";
                     btnVerify.disabled = false;
-                    if(companyCode.toUpperCase() === "ABC") {
+                    
+                    // ดึงค่าล่าสุดจาก localStorage เผื่อเพิ่งลงทะเบียนฝั่ง User
+                    let currentReg = JSON.parse(localStorage.getItem('stk_registered_companies')) || ["ABC", "KMT", "STK", "BKC"];
+
+                    if(currentReg.includes(companyCode)) {
                         document.getElementById('supplier-auth').classList.add('hidden-section');
                         document.getElementById('supplier-content').classList.remove('hidden-section');
-                        showToast("ยืนยันสิทธิ์สำเร็จ (Preview Mode)", true);
+                        document.getElementById('verified-company-badge').textContent = "บริษัท: " + companyCode;
+                        showToast("ยืนยันสิทธิ์สำเร็จ (Company Code ถูกต้อง)", true);
                     } else {
-                        showToast("ยังไม่พบสิทธิ์ในระบบ (รหัสจำลองคือ ABC)", false);
+                        showToast("ไม่พบ Company Code นี้ในระบบ กรุณาลงทะเบียนที่แท็บ User ก่อน", false);
                     }
                 }, 800);
             }
+        }
+
+        function logoutSupplier() {
+            document.getElementById('supplier-content').classList.add('hidden-section');
+            document.getElementById('supplier-auth').classList.remove('hidden-section');
+            document.getElementById('supplier-pass').value = '';
         }
     </script>
 </body>
