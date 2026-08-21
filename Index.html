@@ -23,7 +23,7 @@
             <p class="text-blue-100 text-sm mt-1">ยินดีต้อนรับเข้าสู่ระบบ</p>
         </div>
 
-        <!-- Tab Navigation -->
+        <!-- Tab Navigation (ซ่อน Supplier ไว้จนกว่า ICT จะอนุมัติหรือตรวจสอบสิทธิ์ผ่าน) -->
         <div class="flex border-b border-gray-200">
             <button onclick="switchTab('user')" id="tab-user" class="flex-1 py-3 text-center tab-active transition-colors duration-200">
                 ผู้ใช้งาน (User)
@@ -55,7 +55,7 @@
             </form>
         </div>
 
-        <!-- Supplier Section -->
+        <!-- Supplier Section (ถูกซ่อนไว้จนกว่า ICT จะ Add สิทธิ์และผู้ใช้ตรวจสอบผ่าน) -->
         <div id="section-supplier" class="p-6 hidden-section">
             <div id="supplier-auth">
                 <h2 class="text-lg font-semibold text-gray-800 mb-2">ตรวจสอบสิทธิ์ (ICT Approved)</h2>
@@ -104,8 +104,10 @@
     </div>
 
     <script>
-        const APPS_SCRIPT_URL = 'ใส่_URL_WEB_APP_ของคุณที่นี่';
+        // กำหนด URL ของ Google Apps Script ที่ Deploy ไว้
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzyv3BiPHwdhOI3cGRXXfQ2fTZg4LM2FNEQD8_iltu-izMTiQz-ohq7GieNnUHft6hIrQ/exec';
 
+        // ระบบสลับแท็บเมนู
         function switchTab(tab) {
             const userSec = document.getElementById('section-user');
             const supSec = document.getElementById('section-supplier');
@@ -125,6 +127,7 @@
             }
         }
 
+        // ระบบ Toast แจ้งเตือน
         function showToast(message, isSuccess = true) {
             const toast = document.getElementById('toast');
             const toastBg = document.getElementById('toast-bg');
@@ -147,6 +150,7 @@
             }, 3000);
         }
 
+        // ฟังก์ชันส่งข้อมูลผู้ใช้งาน (User) ลงทะเบียนส่งให้ ICT
         function handleUserSubmit(event) {
             event.preventDefault();
             
@@ -163,23 +167,7 @@
                 }
             };
 
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run
-                    .withSuccessHandler(function(response) {
-                        resetButton();
-                        if (response.success) {
-                            showToast(response.message, true);
-                            document.getElementById('userForm').reset();
-                        } else {
-                            showToast(response.message, false);
-                        }
-                    })
-                    .withFailureHandler(function(error) {
-                        resetButton();
-                        showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", false);
-                    })
-                    .submitUserData(payload.data);
-            } else if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'ใส่_URL_WEB_APP_ของคุณที่นี่') {
+            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'ใส่_URL_WEB_APP_ของคุณที่นี่') {
                 fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -196,10 +184,13 @@
                     showToast("เกิดข้อผิดพลาดในการเชื่อมต่อ", false);
                 });
             } else {
+                // โหมดทดสอบ (Preview Mode) - สมมติว่า ICT Add ให้แล้ว เลยปลดล็อกแท็บ Supplier ให้กดทดสอบได้ด้วย
                 setTimeout(() => {
                     resetButton();
                     showToast("บันทึกสำเร็จ! (จำลอง: ปลดล็อก Supplier ให้ทดสอบ)", true);
                     document.getElementById('userForm').reset();
+                    
+                    // ปลดล็อกแสดงแท็บ Supplier หลังจากลงทะเบียนและ ICT Add แล้ว
                     document.getElementById('tab-supplier').classList.remove('hidden-section');
                 }, 1000);
             }
@@ -211,6 +202,7 @@
             }
         }
 
+        // ฟังก์ชันตรวจสอบสิทธิ์ Supplier หลังจาก ICT Add Gmail แล้ว
         function verifySupplier() {
             const companyCode = document.getElementById('supplier-pass').value;
             const btnVerify = document.getElementById('btn-verify');
@@ -228,27 +220,7 @@
                 companyCode: companyCode
             };
 
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run
-                    .withSuccessHandler(function(response) {
-                        btnVerify.textContent = "ตรวจสอบ";
-                        btnVerify.disabled = false;
-                        
-                        if(response.success) {
-                            document.getElementById('supplier-auth').classList.add('hidden-section');
-                            document.getElementById('supplier-content').classList.remove('hidden-section');
-                            showToast(response.message || "ยืนยันสิทธิ์สำเร็จ", true);
-                        } else {
-                            showToast(response.message || "ยังไม่ได้รับสิทธิ์จาก ICT หรือ Code ไม่ถูกต้อง", false);
-                        }
-                    })
-                    .withFailureHandler(function(error) {
-                        btnVerify.textContent = "ตรวจสอบ";
-                        btnVerify.disabled = false;
-                        showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", false);
-                    })
-                    .verifySupplierAuth(companyCode);
-            } else if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'ใส่_URL_WEB_APP_ของคุณที่นี่') {
+            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'ใส่_URL_WEB_APP_ของคุณที่นี่') {
                 fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -273,6 +245,7 @@
                     showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", false);
                 });
             } else {
+                // โหมดทดสอบ (Preview)
                 setTimeout(() => {
                     btnVerify.textContent = "ตรวจสอบ";
                     btnVerify.disabled = false;
